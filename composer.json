@@ -15,5 +15,7 @@
         }
     ],
     "minimum-stability": "stable",
-    "require": {}
+    "require": {
+        "filp/whoops": "^2.15"
+    }
 }
