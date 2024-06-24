@@ -1,0 +1,19 @@
+{
+    "name": "ls/api",
+    "description": "basic REST API",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Ls\\Api\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Muccachino",
+            "email": "lucas_staszewski@yahoo.de"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
