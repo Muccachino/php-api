@@ -1,6 +1,9 @@
 <?php
 
 namespace Ls\Api\Service;
+
+use Ls\Api\Validation\CustomValidation;
+
 class User
 {
   private string $firstname;
@@ -16,21 +19,22 @@ class User
 
   public function create(mixed $data): array|object
   {
+    $validator = new CustomValidation($data);
+    if ($validator->validate_create()) {
+      return $data;
+    }
 
-
-    return [
-      "firstname" => $this->firstname,
-      "lastname" => $this->lastname,
-      "age" => $this->age
-    ];
+    return [];
   }
 
-  public function get(int $user_id): array|object
+  public function get(string $user_id): array|object
   {
-
-    return [
-      "getUserId" => $user_id
-    ];
+    $validation = new CustomValidation($user_id);
+    if ($validation->validate_uuid()) {
+      return ["data" => "passed uuid validation"];
+    } else {
+      return ["data" => "not passed uuid"];
+    }
   }
 
   public function getAll(): array|object
@@ -52,7 +56,7 @@ class User
     ];
   }
 
-  public function remove(int $user_id): array|object
+  public function remove(string $user_id): array|object
   {
     return [
       "delete" => "Check"

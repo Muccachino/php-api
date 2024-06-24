@@ -1,6 +1,6 @@
 <?php
 
-namespace Ls\Routes;
+namespace Ls\Api\Routes;
 
 use Ls\Api\Service\User;
 
@@ -18,10 +18,10 @@ enum UserAction: string
 
   function getResponse(): string
   {
-    $user_id = 1;
-    $user_data = ["name" => "test"];
-    //TODO: GET USER DATA FROM https BODY
     $user = new User("Lucas", "Staszewski", 33);
+
+    $user_data = json_decode(file_get_contents("php://input"));
+    $user_id = $_REQUEST["id"] ?? null;
 
     $response = match ($this) {
       self::CREATE => $user->create($user_data),

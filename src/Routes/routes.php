@@ -1,6 +1,6 @@
 <?php
 
-namespace Ls\Routes;
+namespace Ls\Api\Routes;
 
 $resource = $_REQUEST["resource"] ?? null;
 
