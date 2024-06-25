@@ -2,8 +2,11 @@
 
 namespace Ls\Api\Service;
 
+use Ls\Api\Entity\User as UserEntity;
+use Ls\Api\ORM\UserModel;
 use Ls\Api\Validation\CustomValidation;
 use Ls\Api\Validation\Exception\ValidationException;
+use Ramsey\Uuid\Uuid;
 
 class User
 {
@@ -13,12 +16,26 @@ class User
 
   public function create(mixed $data): array|object
   {
+
     $validator = new CustomValidation($data);
     if ($validator->validate_create()) {
-      return $data;
+      $uuid = Uuid::uuid4()->toString();
+      $user_entity = new UserEntity();
+      $user_entity->setUuid($uuid)
+        ->setFirstname($data->firstname)
+        ->setLastname($data->lastname)
+        ->setEmail($data->email)
+        ->setPhone($data->phone)
+        ->setCreatedAt(date("Y-m-d H:i:s"));
+      $valid = $user_uuid = UserModel::create($user_entity);
+      if ($valid) {
+        $data->uuid = $user_uuid;
+        return $data;
+      }
+      return [];
     }
-
     throw new ValidationException("Validation failed, wrong input data");
+
   }
 
   public function get(string $user_id): array|object
@@ -32,14 +49,7 @@ class User
 
   public function getAll(): array|object
   {
-    return [
-      [
-        "user1" => "Check"
-      ],
-      [
-        "user2" => "Check"
-      ]
-    ];
+    return UserModel::get_all();
   }
 
   public function update(mixed $user_data): array|object
