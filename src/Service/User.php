@@ -3,18 +3,12 @@
 namespace Ls\Api\Service;
 
 use Ls\Api\Validation\CustomValidation;
+use Ls\Api\Validation\Exception\ValidationException;
 
 class User
 {
-  private string $firstname;
-  private string $lastname;
-  private int $age;
-
-  public function __construct(string $firstname, string $lastname, int $age)
+  public function __construct()
   {
-    $this->firstname = $firstname;
-    $this->lastname = $lastname;
-    $this->age = $age;
   }
 
   public function create(mixed $data): array|object
@@ -24,7 +18,7 @@ class User
       return $data;
     }
 
-    return [];
+    throw new ValidationException("Validation failed, wrong input data");
   }
 
   public function get(string $user_id): array|object
@@ -32,9 +26,8 @@ class User
     $validation = new CustomValidation($user_id);
     if ($validation->validate_uuid()) {
       return ["data" => "passed uuid validation"];
-    } else {
-      return ["data" => "not passed uuid"];
     }
+    throw new ValidationException("Validation failed, uuid not valid");
   }
 
   public function getAll(): array|object
@@ -51,15 +44,19 @@ class User
 
   public function update(mixed $user_data): array|object
   {
-    return [
-      "update" => "Check"
-    ];
+    $validation = new CustomValidation($user_data);
+    if ($validation->validate_update()) {
+      return ["data" => "passed update validation"];
+    }
+    throw new ValidationException("Validation failed, wrong input data");
   }
 
   public function remove(string $user_id): array|object
   {
-    return [
-      "delete" => "Check"
-    ];
+    $validation = new CustomValidation($user_id);
+    if ($validation->validate_uuid()) {
+      return ["data" => "passed uuid validation"];
+    }
+    throw new ValidationException("Validation failed, uuid not valid");
   }
 }

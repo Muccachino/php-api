@@ -18,7 +18,7 @@ enum UserAction: string
 
   function getResponse(): string
   {
-    $user = new User("Lucas", "Staszewski", 33);
+    $user = new User();
 
     $user_data = json_decode(file_get_contents("php://input"));
     $user_id = $_REQUEST["id"] ?? null;

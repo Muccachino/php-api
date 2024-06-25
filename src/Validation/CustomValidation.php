@@ -17,7 +17,7 @@ class CustomValidation
   {
     $validation = v::attribute("firstname", v::stringType()->length(self::MIN_STRING, self::MAX_STRING))
       ->attribute("lastname", v::stringType()->length(self::MIN_STRING, self::MAX_STRING))
-      ->attribute("email", v::email(), false)
+      ->attribute("email", v::email())
       ->attribute("phone_num", v::phone(), false);
 
     return $validation->validate($this->data);
