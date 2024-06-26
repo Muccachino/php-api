@@ -2,6 +2,7 @@
 
 namespace Ls\Api\ORM;
 
+use Exception;
 use Ls\Api\Entity\User as UserEntity;
 use RedBeanPHP\R;
 use RedBeanPHP\RedException\SQL;
@@ -43,8 +44,55 @@ class UserModel
     }
     foreach ($user_beans as $bean) {
       unset($bean->id);
-      unset($bean->password);
     }
     return $user_beans;
+  }
+
+  public static function deleteByUuid(string $uuid): bool
+  {
+    $user = self::getByUuid($uuid);
+    try {
+      R::trash($user);
+      return true;
+    } catch (Exception $e) {
+      return false;
+    }
+  }
+
+  public static function getByUuid(string $uuid): ?object
+  {
+    $user = R::findOne(self::TABLE_NAME, 'uuid = :uuid', ['uuid' => $uuid]);
+
+    return $user;
+  }
+
+  public static function updateByUuid(string $uuid, UserEntity $updated_user): bool|object
+  {
+    $user_bean = self::getByUuid($uuid);
+
+    if ($user_bean) {
+      if ($updated_user->getFirstname()) {
+        $user_bean->firstname = $updated_user->getFirstname();
+      }
+      if ($updated_user->getLastname()) {
+        $user_bean->lastname = $updated_user->getLastname();
+      }
+      if ($updated_user->getPhone()) {
+        $user_bean->phone = $updated_user->getPhone();
+      }
+
+      try {
+        $user_bean_id = R::store($user_bean);
+      } catch (SQL $e) {
+        return false;
+      } finally {
+        R::close();
+      }
+
+      $updated_user_bean = R::findOne(self::TABLE_NAME, 'id = :id', ['id' => $user_bean_id]);
+      unset($updated_user_bean->id);
+      return $updated_user_bean;
+    }
+    return false;
   }
 }

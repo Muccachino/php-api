@@ -42,7 +42,12 @@ class User
   {
     $validation = new CustomValidation($user_id);
     if ($validation->validate_uuid()) {
-      return ["data" => "passed uuid validation"];
+      if ($user_bean = UserModel::getByUuid($user_id)) {
+        //TODO: Refactor unset
+        unset($user_bean->id);
+        return $user_bean;
+      }
+      return [];
     }
     throw new ValidationException("Validation failed, uuid not valid");
   }
@@ -55,8 +60,25 @@ class User
   public function update(mixed $user_data): array|object
   {
     $validation = new CustomValidation($user_data);
+
     if ($validation->validate_update()) {
-      return ["data" => "passed update validation"];
+
+      $user_uuid = $user_data->uuid;
+      $user_entity = new UserEntity();
+      if (!empty($user_data->firstname)) {
+        $user_entity->setFirstname($user_data->firstname);
+      }
+      if (!empty($user_data->lastname)) {
+        $user_entity->setLastname($user_data->lastname);
+      }
+      if (!empty($user_data->phone)) {
+        $user_entity->setPhone($user_data->phone);
+      }
+
+      $valid = $updated_user = UserModel::updateByUuid($user_uuid, $user_entity);
+      if ($valid) {
+        return $updated_user;
+      }
     }
     throw new ValidationException("Validation failed, wrong input data");
   }
@@ -65,8 +87,10 @@ class User
   {
     $validation = new CustomValidation($user_id);
     if ($validation->validate_uuid()) {
-      return ["data" => "passed uuid validation"];
+      $delete_user = UserModel::deleteByUuid($user_id);
+      return ["data" => $delete_user];
     }
     throw new ValidationException("Validation failed, uuid not valid");
   }
+
 }

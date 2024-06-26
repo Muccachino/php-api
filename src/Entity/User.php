@@ -5,11 +5,11 @@ namespace Ls\Api\Entity;
 class User
 {
   private string $uuid;
-  private string $firstname;
-  private string $lastname;
+  private ?string $firstname = null;
+  private ?string $lastname = null;
   private string $email;
   private ?string $password = null;
-  private string $phone;
+  private ?string $phone = null;
   private string $created_at;
 
   public function getUuid(): string
@@ -23,7 +23,7 @@ class User
     return $this;
   }
 
-  public function getFirstname(): string
+  public function getFirstname(): ?string
   {
     return $this->firstname;
   }
@@ -34,7 +34,7 @@ class User
     return $this;
   }
 
-  public function getLastname(): string
+  public function getLastname(): ?string
   {
     return $this->lastname;
   }
@@ -67,7 +67,7 @@ class User
     return $this;
   }
 
-  public function getPhone(): string
+  public function getPhone(): ?string
   {
     return $this->phone;
   }

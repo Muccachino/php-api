@@ -25,10 +25,10 @@ class CustomValidation
 
   public function validate_update(): bool
   {
-    $validation = v::attribute("user_uuid", v::uuid(4))
+    $validation = v::attribute("uuid", v::uuid(4))
       ->attribute("firstname", v::stringType()->length(self::MIN_STRING, self::MAX_STRING))
       ->attribute("lastname", v::stringType()->length(self::MIN_STRING, self::MAX_STRING))
-      ->attribute("phone_num", v::phone(), false);
+      ->attribute("phone", v::phone(), false);
 
     return $validation->validate($this->data);
   }
