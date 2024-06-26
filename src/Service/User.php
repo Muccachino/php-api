@@ -6,6 +6,8 @@ use Ls\Api\Entity\User as UserEntity;
 use Ls\Api\ORM\UserModel;
 use Ls\Api\Validation\CustomValidation;
 use Ls\Api\Validation\Exception\ValidationException;
+use PH7\JustHttp\StatusCode;
+use PH7\PhpHttpResponseHeader\Http;
 use Ramsey\Uuid\Uuid;
 
 class User
@@ -28,11 +30,13 @@ class User
         ->setPhone($data->phone)
         ->setCreatedAt(date("Y-m-d H:i:s"));
       $valid = $user_uuid = UserModel::create($user_entity);
-      if ($valid) {
-        $data->uuid = $user_uuid;
-        return $data;
+      if (!$valid) {
+        Http::setHeadersByCode(StatusCode::BAD_REQUEST);
+        return [];
       }
-      return [];
+      $data->uuid = $user_uuid;
+      return $data;
+
     }
     throw new ValidationException("Validation failed, wrong input data");
 
@@ -47,6 +51,7 @@ class User
         unset($user_bean->id);
         return $user_bean;
       }
+      HTTP::setHeadersByCode(StatusCode::NOT_FOUND);
       return [];
     }
     throw new ValidationException("Validation failed, uuid not valid");
@@ -76,9 +81,11 @@ class User
       }
 
       $valid = $updated_user = UserModel::updateByUuid($user_uuid, $user_entity);
-      if ($valid) {
-        return $updated_user;
+      if (!$valid) {
+        Http::setHeadersByCode(StatusCode::NOT_FOUND);
+        return [];
       }
+      return $updated_user;
     }
     throw new ValidationException("Validation failed, wrong input data");
   }
@@ -87,7 +94,11 @@ class User
   {
     $validation = new CustomValidation($user_id);
     if ($validation->validate_uuid()) {
-      $delete_user = UserModel::deleteByUuid($user_id);
+      $valid = $delete_user = UserModel::deleteByUuid($user_id);
+      if (!$valid) {
+        Http::setHeadersByCode(StatusCode::NOT_FOUND);
+        return ["error" => "User not found"];
+      }
       return ["data" => $delete_user];
     }
     throw new ValidationException("Validation failed, uuid not valid");
