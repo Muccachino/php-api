@@ -2,6 +2,7 @@
 
 namespace Ls\Api\Routes;
 
+use Ls\Api\Routes\Exception\NotAllowedException;
 use Ls\Api\Service\User;
 
 
@@ -23,14 +24,26 @@ enum UserAction: string
     $user_data = json_decode(file_get_contents("php://input"));
     $user_id = $_REQUEST["id"] ?? null;
 
-    $response = match ($this) {
-      self::CREATE => $user->create($user_data),
-      self::GET => $user->get($user_id),
-      self::GET_ALL => $user->getAll(),
-      self::UPDATE => $user->update($user_data),
-      self::REMOVE => $user->remove($user_id)
+    $http_method = match ($this) {
+      self::CREATE => Http::POST_METHOD,
+      self::GET, self::GET_ALL => Http::GET_METHOD,
+      self::UPDATE => Http::PUT_METHOD,
+      self::REMOVE => Http::DELETE_METHOD
     };
-    return json_encode($response);
+
+    $correctRequestMethod = Http::matchHttpRequestMethod($http_method);
+
+    if ($correctRequestMethod) {
+      $response = match ($this) {
+        self::CREATE => $user->create($user_data),
+        self::GET => $user->get($user_id),
+        self::GET_ALL => $user->getAll(),
+        self::UPDATE => $user->update($user_data),
+        self::REMOVE => $user->remove($user_id)
+      };
+      return json_encode($response);
+    }
+    throw new NotAllowedException("Method not allowed");
   }
 }
 

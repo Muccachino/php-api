@@ -42,10 +42,19 @@ class UserModel
     if (!$user_exists) {
       return [];
     }
-    foreach ($user_beans as $bean) {
-      unset($bean->id);
-    }
-    return $user_beans;
+
+    return array_map(function ($user): array {
+      $entity = new UserEntity();
+      $entity->unSerialize($user->export());
+      return [
+        "uuid" => $entity->getUuid(),
+        "firstname" => $entity->getFirstname(),
+        "lastname" => $entity->getLastname(),
+        "email" => $entity->getEmail(),
+        "phone" => $entity->getPhone(),
+        "created_at" => $entity->getCreatedAt(),
+      ];
+    }, $user_beans);
   }
 
   public static function deleteByUuid(string $uuid): bool
@@ -59,11 +68,22 @@ class UserModel
     }
   }
 
-  public static function getByUuid(string $uuid): ?object
+  public static function getByUuid(string $uuid): ?UserEntity
   {
     $user = R::findOne(self::TABLE_NAME, 'uuid = :uuid', ['uuid' => $uuid]);
+    $user_bean_export = $user->export();
+    $user_entity = new UserEntity();
 
-    return $user;
+    return $user_entity->unSerialize($user_bean_export);
+  }
+
+  public static function getByEmail(string $email): ?UserEntity
+  {
+    $user = R::findOne(self::TABLE_NAME, 'email = :email', ['email' => $email]);
+    $user_bean_export = $user->export();
+    $user_entity = new UserEntity();
+
+    return $user_entity->unSerialize($user_bean_export);
   }
 
   public static function updateByUuid(string $uuid, UserEntity $updated_user): bool|object

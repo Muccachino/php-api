@@ -47,9 +47,7 @@ class User
     $validation = new CustomValidation($user_id);
     if ($validation->validate_uuid()) {
       if ($user_bean = UserModel::getByUuid($user_id)) {
-        //TODO: Refactor unset
-        unset($user_bean->id);
-        return $user_bean;
+        return $user_bean->serialize();
       }
       HTTP::setHeadersByCode(StatusCode::NOT_FOUND);
       return [];

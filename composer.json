@@ -22,6 +22,7 @@
         "gabordemooij/redbean": "^5.7",
         "ramsey/uuid": "^4.7",
         "ph-7/just-http-status-codes": "^1.1",
-        "ph-7/php-http-response-header": "^1.0"
+        "ph-7/php-http-response-header": "^1.0",
+        "firebase/php-jwt": "^6.10"
     }
 }

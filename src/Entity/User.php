@@ -89,5 +89,36 @@ class User
     return $this;
   }
 
+  public function unSerialize(array $user): User
+  {
+    if (!empty($user["uuid"])) {
+      $this->setUuid($user["uuid"]);
+    }
+    if (!empty($user["firstname"])) {
+      $this->setFirstname($user["firstname"]);
+    }
+    if (!empty($user["lastname"])) {
+      $this->setLastname($user["lastname"]);
+    }
+    if (!empty($user["email"])) {
+      $this->setEmail($user["email"]);
+    }
+    if (!empty($user["password"])) {
+      $this->setPassword($user["password"]);
+    }
+    if (!empty($user["phone"])) {
+      $this->setPhone($user["phone"]);
+    }
+    if (!empty($user["created_at"])) {
+      $this->setCreatedAt($user["created_at"]);
+    }
+
+    return $this;
+  }
+
+  public function serialize(): array
+  {
+    return get_object_vars($this);
+  }
 
 }
