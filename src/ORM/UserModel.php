@@ -88,7 +88,7 @@ class UserModel
 
   public static function updateByUuid(string $uuid, UserEntity $updated_user): bool|object
   {
-    $user_bean = self::getByUuid($uuid);
+    $user_bean = R::findOne(self::TABLE_NAME, 'uuid = :uuid', ['uuid' => $uuid]);
 
     if ($user_bean) {
       if ($updated_user->getFirstname()) {
@@ -114,5 +114,12 @@ class UserModel
       return $updated_user_bean;
     }
     return false;
+  }
+
+  public static function emailExists(string $email): bool
+  {
+    $user_bean = R::findOne(self::TABLE_NAME, 'email = :email', ['email' => $email]);
+
+    return $user_bean !== null;
   }
 }

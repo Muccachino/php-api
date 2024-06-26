@@ -4,6 +4,7 @@ namespace Ls\Api\Service;
 
 use Ls\Api\Entity\User as UserEntity;
 use Ls\Api\ORM\UserModel;
+use Ls\Api\Service\Exception\EmailExistsException;
 use Ls\Api\Validation\CustomValidation;
 use Ls\Api\Validation\Exception\ValidationException;
 use PH7\JustHttp\StatusCode;
@@ -18,7 +19,6 @@ class User
 
   public function create(mixed $data): array|object
   {
-
     $validator = new CustomValidation($data);
     if ($validator->validate_create()) {
       $uuid = Uuid::uuid4()->toString();
@@ -29,6 +29,12 @@ class User
         ->setEmail($data->email)
         ->setPhone($data->phone)
         ->setCreatedAt(date("Y-m-d H:i:s"));
+      //TODO: set Password
+
+      if (UserModel::emailExists($user_entity->getEmail())) {
+        $email = $user_entity->getEmail();
+        throw new EmailExistsException("Email $email already exists");
+      }
       $valid = $user_uuid = UserModel::create($user_entity);
       if (!$valid) {
         Http::setHeadersByCode(StatusCode::BAD_REQUEST);
@@ -100,6 +106,15 @@ class User
       return ["data" => $delete_user];
     }
     throw new ValidationException("Validation failed, uuid not valid");
+  }
+
+  public function login(mixed $user_data)
+  {
+    $validation = new CustomValidation($user_data);
+    if ($validation->validate_login()) {
+      return "Passt";
+    }
+    throw new ValidationException("Validation failed, incorrect email or password");
   }
 
 }
