@@ -14,6 +14,7 @@ class UserModel
   public static function create(UserEntity $data): false|string
   {
     //TODO: Add Exception Handling
+
     $user_bean = R::dispense(self::TABLE_NAME);
     $user_bean->uuid = $data->getUuid();
     $user_bean->firstname = $data->getFirstname();
@@ -119,7 +120,16 @@ class UserModel
   public static function emailExists(string $email): bool
   {
     $user_bean = R::findOne(self::TABLE_NAME, 'email = :email', ['email' => $email]);
-
     return $user_bean !== null;
+  }
+
+  public static function setUserToken(string $jwt_token, string $uuid): void
+  {
+    $user_bean = R::findOne(self::TABLE_NAME, 'uuid = :uuid', ['uuid' => $uuid]);
+    $user_bean->session_token = $jwt_token;
+    $user_bean->last_session = time();
+
+    R::store($user_bean);
+    R::close();
   }
 }

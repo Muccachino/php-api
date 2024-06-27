@@ -8,7 +8,7 @@ class User
   private ?string $firstname = null;
   private ?string $lastname = null;
   private string $email;
-  private ?string $password = null;
+  private string $password;
   private ?string $phone = null;
   private string $created_at;
 
@@ -56,7 +56,7 @@ class User
     return $this;
   }
 
-  public function getPassword(): ?string
+  public function getPassword(): string
   {
     return $this->password;
   }

@@ -2,14 +2,18 @@
 
 namespace Ls\Api\Service;
 
+use Firebase\JWT\JWT;
 use Ls\Api\Entity\User as UserEntity;
 use Ls\Api\ORM\UserModel;
+use Ls\Api\Service\Exception\CanNotLoginUserException;
 use Ls\Api\Service\Exception\EmailExistsException;
 use Ls\Api\Validation\CustomValidation;
 use Ls\Api\Validation\Exception\ValidationException;
 use PH7\JustHttp\StatusCode;
 use PH7\PhpHttpResponseHeader\Http;
 use Ramsey\Uuid\Uuid;
+use RedBeanPHP\RedException\SQL;
+use function Ls\Api\Helpers\hashPassword;
 
 class User
 {
@@ -27,9 +31,9 @@ class User
         ->setFirstname($data->firstname)
         ->setLastname($data->lastname)
         ->setEmail($data->email)
+        ->setPassword(hashPassword($data->password))
         ->setPhone($data->phone)
         ->setCreatedAt(date("Y-m-d H:i:s"));
-      //TODO: set Password
 
       if (UserModel::emailExists($user_entity->getEmail())) {
         $email = $user_entity->getEmail();
@@ -41,6 +45,7 @@ class User
         return [];
       }
       $data->uuid = $user_uuid;
+      //TODO: Return data without password
       return $data;
 
     }
@@ -112,7 +117,32 @@ class User
   {
     $validation = new CustomValidation($user_data);
     if ($validation->validate_login()) {
-      return "Passt";
+      if (UserModel::emailExists($user_data->email)) {
+        $user = UserModel::getByEmail($user_data->email);
+        $is_login_valid = $user->getEmail() && password_verify($user_data->password, $user->getPassword());
+        if ($is_login_valid) {
+          $user_name = $user->getFirstname() . " " . $user->getLastname();
+          $current_time = time();
+          $payload = [
+            "iss" => $_ENV["API_URL"],
+            "iat" => $current_time,
+            "exp" => $current_time + $_ENV["JWT_TOKEN_EXP"],
+            "data" => [
+              "email" => $user->getEmail(),
+              "user" => $user_name
+            ]
+          ];
+          $jwt_token = JWT::encode($payload, "this is very secret", "HS256");
+        }
+        try {
+          UserModel::setUserToken($jwt_token, $user->getUuid());
+        } catch (SQL $e) {
+          throw new CanNotLoginUserException("can not set session token");
+        }
+        return [
+          "message" => "$user_name successfully logged in",
+          "token" => $jwt_token];
+      }
     }
     throw new ValidationException("Validation failed, incorrect email or password");
   }

@@ -3,6 +3,7 @@
 namespace Ls\Api\Routes;
 
 use Ls\Api\Routes\Exception\NotAllowedException;
+use Ls\Api\Service\Exception\CanNotLoginUserException;
 use Ls\Api\Service\Exception\EmailExistsException;
 use Ls\Api\Validation\Exception\ValidationException;
 use PH7\JustHttp\StatusCode;
@@ -15,7 +16,7 @@ try {
     "user" => require "user.routes.php",
     default => require "404.routes.php"
   };
-} catch (ValidationException $e) {
+} catch (ValidationException|NotAllowedException $e) {
   \PH7\PhpHttpResponseHeader\Http::setHeadersByCode(StatusCode::BAD_REQUEST);
   response([
     "errors" => [
@@ -23,14 +24,7 @@ try {
       "code" => $e->getCode()
     ]
   ]);
-} catch (NotAllowedException $e) {
-  response([
-    "errors" => [
-      "message" => $e->getMessage(),
-      "code" => $e->getCode()
-    ]
-  ]);
-} catch (EmailExistsException $e) {
+} catch (EmailExistsException|CanNotLoginUserException $e) {
   response([
     "errors" => [
       "message" => $e->getMessage()
