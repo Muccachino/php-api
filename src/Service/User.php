@@ -17,7 +17,7 @@ use function Ls\Api\Helpers\hashPassword;
 
 class User
 {
-  public function __construct()
+  public function __construct(protected string $jwt_secret_key)
   {
   }
 
@@ -132,7 +132,8 @@ class User
               "user" => $user_name
             ]
           ];
-          $jwt_token = JWT::encode($payload, "this is very secret", "HS256");
+          $jwt_token = JWT::encode($payload, $this->jwt_secret_key, "HS256");
+
         }
         try {
           UserModel::setUserToken($jwt_token, $user->getUuid());

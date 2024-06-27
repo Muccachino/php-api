@@ -3,6 +3,7 @@
 namespace Ls\Api\Routes;
 
 use Ls\Api\Routes\Exception\NotAllowedException;
+use Ls\Api\Service\SecretJwtKey;
 use Ls\Api\Service\User;
 
 
@@ -20,7 +21,8 @@ enum UserAction: string
 
   function getResponse(): string
   {
-    $user = new User();
+    $jwt_secret_key = SecretJwtKey::getSecretJwtKey();
+    $user = new User($jwt_secret_key);
 
     $user_data = json_decode(file_get_contents("php://input"));
     $user_id = $_REQUEST["id"] ?? null;
