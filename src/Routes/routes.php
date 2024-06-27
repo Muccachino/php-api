@@ -14,6 +14,7 @@ $resource = $_REQUEST["resource"] ?? null;
 try {
   return match ($resource) {
     "user" => require "user.routes.php",
+    "pokemon" => require "pokemon.routes.php",
     default => require "404.routes.php"
   };
 } catch (ValidationException|NotAllowedException $e) {
